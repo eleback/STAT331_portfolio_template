@@ -1,6 +1,6 @@
 ---
 title: "STAT 331 Portfolio"
-author: "Your Name Goes Here"
+author: "Ella Leback"
 format: 
   html: 
     self-contained: true
@@ -9,9 +9,11 @@ editor: visual
 execute: 
   eval: false
   echo: true
+code-tools: true
+code-fold: true
 ---
 
-[**My Grade:**]{.underline} I believe my grade equivalent to course work evidenced below to be an __.
+[**My Grade:**]{.underline} I believe my grade equivalent to course work evidenced below to be an \_\_.
 
 [**Learning Objective Evidence:**]{.underline} In the code chunks below, provide code from Lab or Challenge assignments where you believe you have demonstrated proficiency with the specified learning target. Be sure to specify **where** the code came from (e.g., Lab 4 Question 2).
 
@@ -24,6 +26,9 @@ execute:
 ```{r}
 #| label: wd-1-csv
 
+surveys <- read_csv(here::here("data", "surveys.csv"))
+
+#from lab 2 and challenge 2 Q #1
 ```
 
 -   `xlsx`
@@ -31,6 +36,15 @@ execute:
 ```{r}
 #| label: wd-1-xlsx
 
+military <- read_xlsx(here::here("data", 
+                                 "gov_spending_per_capita.xlsx"), 
+                      sheet = "Share of Govt. spending", 
+                      skip  = 7, 
+                      n_max = 191)
+
+read_xlsx(path = here::here("Week 2", "Checkins", "Ages_Data", "Ages_Data", "ages.xlsx"), sheet = "ages")
+
+#P.A. 4 on military spending and Week 2 checkin in Q #1
 ```
 
 -   `txt`
@@ -38,12 +52,35 @@ execute:
 ```{r}
 #| label: wd-1-txt
 
+read_delim(here::here("Week 2", "Checkins", "Ages_Data", "Ages_Data", "ages_mystery.txt"))
+
+#Week 2 Checkin prompt #3
 ```
 
 **WD-2: I can select necessary columns from a dataset.**
 
 ```{r}
 #| label: wd-2
+
+teacher_evals_clean <- evals |>
+  rename(sex = gender) |>
+  filter(no_participants > 10) |> 
+  mutate(
+    across(.cols = teacher_id:question_no,
+           .fns = ~ as.factor(.x)) 
+        ) |>
+  select(course_id,
+         teacher_id,
+         question_no,
+         no_participants,
+         resp_share,
+         SET_score_avg,
+         percent_failed_cur,
+         academic_degree,
+         seniority,
+         sex)
+
+#From Lab 3 Q#5
 
 ```
 
@@ -54,13 +91,45 @@ execute:
 ```{r}
 #| label: wd-3-numeric
 
+teacher_evals_clean <- evals |>
+  rename(sex = gender) |>
+  filter(no_participants > 10) |> 
+  mutate(
+    across(.cols = teacher_id:question_no,
+           .fns = ~ as.factor(.x)) 
+        ) |>
+  select(course_id,
+         teacher_id,
+         question_no,
+         no_participants,
+         resp_share,
+         SET_score_avg,
+         percent_failed_cur,
+         academic_degree,
+         seniority,
+         sex)
+
+#From Lab 3 Q#5
 ```
 
 -   character -- specifically a string (example must use functions from **stringr**)
 
 ```{r}
 #| label: wd-3-string
-
+get_fit_now_check_in |>
+  mutate(check_in_date = ymd(check_in_date)) |>
+  right_join(get_fit_now_member, 
+             by = join_by(membership_id == id)) |>
+  inner_join(person,
+             by = join_by(person_id == id,
+                          name == name)) |>
+  inner_join(drivers_license,
+             by = join_by(license_id == id)) |>
+  filter(check_in_date == "2018-01-09",
+         membership_status == "gold",
+         str_detect(membership_id, "^48Z"),
+         str_detect(license_id, "[H42W]"))
+#from lab 5, find suspect who visited Get Fit Now
 ```
 
 -   factor
@@ -75,6 +144,30 @@ execute:
 ```{r}
 #| label: wd-3-date
 
+get_fit_now_check_in |>
+  mutate(check_in_date = ymd(check_in_date)) |>
+  right_join(get_fit_now_member, 
+             by = join_by(membership_id == id)) |>
+  inner_join(person,
+             by = join_by(person_id == id,
+                          name == name)) |>
+  inner_join(drivers_license,
+             by = join_by(license_id == id)) |>
+  filter(check_in_date == "2018-01-09",
+         membership_status == "gold",
+         str_detect(membership_id, "^48Z"),
+         str_detect(license_id, "[H42W]"))
+
+
+facebook_event_checkin |>
+  left_join(person,
+             by = join_by(person_id == id)) |>
+  filter(event_name == "SQL Symphony Concert",
+         str_sub(date, 1, 4) == 2017,
+         str_sub(date, 5, 6) == 12))
+
+#both from lab 5, first uses ymd func to set value to date type, 
+#second uses str_sub to select values representing part of a date
 ```
 
 **WD-4: I can modify existing variables and create new variables in a dataframe for a *variety* of data types (e.g., numeric, integer, character, factor, date).**
@@ -84,12 +177,25 @@ execute:
 ```{r}
 #| label: wd-4-numeric
 
+ca_childcare |> 
+  filter(study_year %in% c("2008", "2018")) |>
+  group_by(region,
+           study_year) |>
+  mutate(median_mhi_2018 = median(mhi_2018, 
+                                  na.rm = TRUE))
+
+#from lab 4 q#4 to modify mhi_2018
 ```
 
 -   character -- specifically a string (example must use functions from **stringr**)
 
 ```{r}
 #| label: wd-4-string
+
+ca_childcare <- ca_childcare |>
+  mutate(county_name = str_remove(county_name, " County")) ...
+
+#from lab 4 q#3
 
 ```
 
@@ -98,12 +204,46 @@ execute:
 ```{r}
 #| label: wd-4-factor
 
+ca_childcare |>
+  pivot_longer(cols = mc_infant:mc_preschool,
+               names_to = "Age",
+               values_to = "price") |>
+  mutate(Age = fct_recode(.f = Age,
+                          "Infant" = "mc_infant",
+                          "Toddler" = "mc_toddler",
+                          "Preschool" = "mc_preschool"),
+         Age = fct_relevel(Age, 
+                           "Infant",
+                           "Toddler",
+                           "Preschool"),
+         region = fct_recode(region, 
+                             "Los Angeles County" = "Los Angeles",
+                             "Orange County" = "Orange"),
+         region = fct_relevel(region, 
+                              "San Francisco Bay Area",
+                              "Orange County",
+                              "Los Angeles County",
+                              "Northern San Joaquin Valley",
+                              "Central Coast",
+                              "Inland Empire",
+                              "Superior California",
+                              "Southern San Joaquin Valley",
+                              "San Diego - Imperial",
+                              "North Coast"))
+
+#from lab 4 Q#6
+
 ```
 
 -   date (example must use functions from **lubridate**)
 
 ```{r}
 #| label: wd-4-date
+
+crime_scene_report <- crime_scene_report |>
+  mutate(date = ymd(date))
+
+#from lab 5 to set crime report date values as date types
 
 ```
 
@@ -114,12 +254,28 @@ execute:
 ```{r}
 #| label: wd-5-left
 
+facebook_event_checkin |>
+  left_join(person,
+             by = join_by(person_id == id))
+
+#from lab 5 to figure out who attended the facebook event and person info
 ```
 
 -   `right_join()`
 
 ```{r}
 #| label: wd-5-right
+
+facebook_event_checkin |>
+  left_join(person,
+             by = join_by(person_id == id)) |>
+  filter(event_name == "SQL Symphony Concert",
+         str_sub(date, 1, 4) == 2017,
+         str_sub(date, 5, 6) == 12) |>
+  right_join(drivers_license, 
+               by = join_by(license_id == id))
+
+#from lab 5 to find who hired Jeremy Bowers
 
 ```
 
@@ -128,6 +284,19 @@ execute:
 ```{r}
 #| label: wd-5-inner
 
+facebook_event_checkin |>
+  left_join(person,
+             by = join_by(person_id == id)) |>
+  filter(event_name == "SQL Symphony Concert",
+         str_sub(date, 1, 4) == 2017,
+         str_sub(date, 5, 6) == 12) |>
+  right_join(drivers_license, 
+               by = join_by(license_id == id)) |>
+  inner_join(income, 
+             by = "ssn")
+
+#from lab 5 to find who hired Jeremy Bowers
+
 ```
 
 -   `full_join()`
@@ -135,6 +304,16 @@ execute:
 ```{r}
 #| label: wd-5-full
 
+get_fit_now_check_in |>
+  mutate(check_in_date = ymd(check_in_date)) |>
+  full_join(get_fit_now_member, 
+             by = join_by(membership_id == id)) |>
+  inner_join(person,
+             by = join_by(person_id == id,
+                          name == name))
+
+#modified from lab 5 to change right join to full join because in this 
+#context it does not seriously change the data to find get fit now suspect
 ```
 
 **WD-6: I can use filtering joins to filter rows from a dataframe.**
@@ -143,6 +322,8 @@ execute:
 
 ```{r}
 #| label: wd-6-semi
+
+
 
 ```
 
@@ -160,6 +341,13 @@ execute:
 ```{r}
 #| label: wd-7-long
 
+ca_childcare |>
+  pivot_longer(cols = mc_infant:mc_preschool,
+               names_to = "Age",
+               values_to = "price")
+
+#from lab 4 Q#6
+
 ```
 
 -   `pivot_wider()`
@@ -167,13 +355,28 @@ execute:
 ```{r}
 #| label: wd-7-wide
 
+ca_childcare |> 
+  filter(study_year %in% c("2008", "2018")) |>
+  group_by(region,
+           study_year) |>
+  mutate(median_mhi_2018 = median(mhi_2018, 
+                                  na.rm = TRUE)) |>
+  select(region,
+         study_year,
+         median_mhi_2018) |>
+  distinct() |>
+  pivot_wider(names_from = study_year,
+              values_from = median_mhi_2018) 
+
+#from lab 4 Q#4
+
 ```
 
 ## Reproducibility
 
 **R-1: I can create professional looking, reproducible analyses using RStudio projects, Quarto documents, and the here package.**
 
-I've done this in the following provided assignments:
+I've done this in the following provided assignments: Lab 2, Lab 3
 
 **R-2: I can write well documented and tidy code.**
 
@@ -182,12 +385,37 @@ I've done this in the following provided assignments:
 ```{r}
 #| label: r-2-1
 
+ggplot(data = surveys,
+       mapping = aes(x = species,
+                     y = weight)) +
+  geom_boxplot(outliers = FALSE) + #remove outliers
+  geom_jitter(color = "steelblue",
+              alpha = 0.5) +
+  labs(subtitle = "Weight (g)",
+       x = "Species",
+       y = "") + #put y into subtitle so easier to read graph
+   theme_bw() + # make plot more presentable
+   theme(axis.text.x = element_text(angle = 45)) #rotate text 45 degrees
+
+
+#from lab 2 Q#10 and revised to plot correctly and add comments
+
 ```
 
 -   Example of **dplyr** pipeline
 
 ```{r}
 #| label: r-2-2
+
+teacher_evals_clean |>
+  group_by(teacher_id,
+           course_id) |>
+  filter(n_distinct(question_no) == 9) |>
+  select(teacher_id,
+         course_id) |>
+  distinct()
+
+#from lab 3 Q#9
 
 ```
 
@@ -196,6 +424,18 @@ I've done this in the following provided assignments:
 ```{r}
 #| label: r-2-3
 
+teacher_evals_clean |>
+  select(teacher_id,
+         academic_degree,
+         seniority,
+         sex) |>
+  distinct(teacher_id,
+           .keep_all = TRUE) |>
+  count(sex, 
+        academic_degree,
+        seniority)
+
+#from lab 3 Q #8
 ```
 
 **R-3: I can write robust programs that are resistant to changes in inputs.**
@@ -205,12 +445,24 @@ I've done this in the following provided assignments:
 ```{r}
 #| label: r-3-example
 
+teacher_evals_clean |> 
+  group_by(teacher_id) |>
+  filter(seniority == 1) |>
+  ungroup() |>
+  slice_max(order_by = percent_failed_cur,
+            with_ties = FALSE) |>
+  select(teacher_id, 
+         percent_failed_cur)
+
+#from lab 3 Q#11
+
 ```
 
 -   Example of function stops
 
 ```{r}
 #| label: r-3-function-stops
+
 
 ```
 
@@ -223,6 +475,19 @@ I've done this in the following provided assignments:
 ```{r}
 #| label: dvs-1-num
 
+ggplot(data = surveys,
+       mapping = aes(x = weight,
+                     y = hindfoot_length
+       )) +
+  geom_point(alpha = 0.5) +
+  facet_wrap(facets = vars(species)) +
+  labs(title = "Effect of rodent weight on hind foot length by species",
+       subtitle = "Hindfoot length (mm)",
+       x = "Weight (g)",
+       y = NULL)
+
+#from Lab 2 Q#4
+
 ```
 
 -   at least one numeric variable and one categorical variable
@@ -230,19 +495,80 @@ I've done this in the following provided assignments:
 ```{r}
 #| label: dvs-2-num-cat
 
+ggplot(data = surveys,
+       mapping = aes(
+         x = weight,
+         y = species,
+         color = genus)) +
+  geom_boxplot(outliers = FALSE) + 
+  geom_jitter(alpha = 0.2) +
+  labs(subtitle = "Rodent Species",
+       x = "Weight (g)",
+       y = "") +
+  annotate("text", y = 1, 
+           x = 25, label = "Neotoma") +
+  annotate("text", y = c(2, 12), 
+           x = 250, label = "Chaetodipus") +
+  annotate("text", y = c(3, 8), 
+           x = 250, label = "Peromyscus") +
+  annotate("text", y = 4, 
+           x = 250, label = "Perognathus") +
+  annotate("text", y = c(5, 9),
+           x = 250, label = "Reithrodontomys") +
+  annotate("text", y = 6, 
+           x = 250, label = "Sigmodon") +
+  annotate("text", y = c(7, 14), 
+           x = 250, label = "Onychomys") +
+  annotate("text", y = c(10, 11, 13), 
+           x = 250, label = "Dipodomys") +
+  theme(legend.position = "none") +
+  theme_bw() +
+  scale_color_brewer()
+
+#Lab 2 challenge annotated boxplot with added theme_bw and 
+#scale_color_brewer from my revised submission of challenge 2
+
 ```
 
 -   at least two categorical variables
 
 ```{r}
-#| label: dvs-2-cat
+#| label: dvs-1-cat
 
+ggplot(data = surveys,
+       mapping = aes(
+         x = weight,
+         y = species,
+         color = genus)) +
+  geom_boxplot(outliers = FALSE) + 
+  geom_jitter(alpha = 0.2) +...
+
+#taken from lab 2 challenge revision Hot question, included relevant portion
 ```
 
 -   dates (timeseries plot)
 
 ```{r}
-#| label: dvs-2-date
+#| label: dvs-1-date
+
+ca_childcare |> #removed extra data manipulation that wasn't needed to show objective
+  ggplot(mapping = aes(x = study_year,
+                       y = price,
+                       color = fct_reorder2(.f = region,
+                                            .x = study_year,
+                                            .y = price))) +
+  geom_point()+
+  facet_wrap(~ Age) +
+  labs(title = "Weekly Median Price for Center-Based Childcare ($)",
+       x = "Study Year",
+       y = "") +
+  geom_smooth() +
+  scale_color_brewer(palette = "Paired", 
+                     name = "California Region") +
+  scale_x_continuous(breaks = c(2008, 2012, 2016)) +
+  theme_bw() 
+
+#revised from lab 4 Q#6
 
 ```
 
@@ -253,6 +579,21 @@ I've done this in the following provided assignments:
 ```{r}
 #| label: dvs-2-1
 
+ggplot(data = surveys,
+       mapping = aes(
+         x = weight,
+         y = species,
+         color = genus)) +
+  geom_boxplot(outliers = FALSE) + 
+  geom_jitter(alpha = 0.2) +
+  labs(subtitle = "Rodent Species",
+       x = "Weight (g)",
+       y = "") + #removed unneeded annotations
+  theme(legend.position = "none") +
+  theme_bw() +
+  scale_color_brewer()
+
+#Lab 2 challenge annotated boxplot with added theme_bw and scale_color_brewer from my revised submission 
 ```
 
 -   I can modify the text in my plot to be more readable
@@ -260,12 +601,51 @@ I've done this in the following provided assignments:
 ```{r}
 #| label: dvs-2-2
 
+ca_childcare |> #removed extra data manipulation that wasn't needed to show objective
+  ggplot(mapping = aes(x = study_year,
+                       y = price,
+                       color = fct_reorder2(.f = region,
+                                            .x = study_year,
+                                            .y = price))) +
+  geom_point()+
+  facet_wrap(~ Age) +
+  labs(title = "Weekly Median Price for Center-Based Childcare ($)",
+       x = "Study Year",
+       y = "") +
+  geom_smooth() +
+  scale_color_brewer(palette = "Paired", 
+                     name = "California Region") +
+  scale_x_continuous(breaks = c(2008, 2012, 2016)) + #used breaks to remove text overlap
+  theme_bw() +
+  theme(legend.text = element_text(size = 8)) #shrink legend text to expand figures
+
+#revised from lab 4 Q#6
+
 ```
 
 -   I can reorder my legend to align with the colors in my plot
 
 ```{r}
 #| label: dvs-2-3
+
+ca_childcare |> #removed extra data manipulation that wasn't needed to show objective
+  ggplot(mapping = aes(x = study_year,
+                       y = price,
+                       color = fct_reorder2(.f = region,
+                                            .x = study_year,
+                                            .y = price))) +
+  geom_point()+
+  facet_wrap(~ Age) +
+  labs(title = "Weekly Median Price for Center-Based Childcare ($)",
+       x = "Study Year",
+       y = "") +
+  geom_smooth() +
+  scale_color_brewer(palette = "Paired", 
+                     name = "California Region") +
+  scale_x_continuous(breaks = c(2008, 2012, 2016)) +
+  theme_bw() 
+
+#revised from lab 4 Q#6
 
 ```
 
@@ -276,6 +656,23 @@ I've done this in the following provided assignments:
 ```{r}
 #| label: dvs-3-1
 
+ggplot(data = surveys,
+       mapping = aes(
+         x = weight,
+         y = species,
+         color = genus)) +
+  geom_boxplot(outliers = FALSE) + 
+  geom_jitter(alpha = 0.2) +
+  labs(subtitle = "Rodent Species",
+       x = "Weight (g)",
+       y = "") + #removed extra annotations
+  theme(legend.position = "none") +
+  theme_bw() +
+  scale_color_brewer()
+
+#Lab 2 challenge annotated boxplot with added theme_bw and scale_color_brewer from my revised submission of challenge 2
+
+
 ```
 
 -   I can use annotations
@@ -283,12 +680,65 @@ I've done this in the following provided assignments:
 ```{r}
 #| label: dvs-3-2
 
+ggplot(data = surveys,
+       mapping = aes(
+         x = weight,
+         y = species,
+         color = genus)) +
+  geom_boxplot(outliers = FALSE) + 
+  geom_jitter(alpha = 0.2) +
+  labs(subtitle = "Rodent Species",
+       x = "Weight (g)",
+       y = "") +
+  annotate("text", y = 1, 
+           x = 25, label = "Neotoma") +
+  annotate("text", y = c(2, 12), 
+           x = 250, label = "Chaetodipus") +
+  annotate("text", y = c(3, 8), 
+           x = 250, label = "Peromyscus") +
+  annotate("text", y = 4, 
+           x = 250, label = "Perognathus") +
+  annotate("text", y = c(5, 9),
+           x = 250, label = "Reithrodontomys") +
+  annotate("text", y = 6, 
+           x = 250, label = "Sigmodon") +
+  annotate("text", y = c(7, 14), 
+           x = 250, label = "Onychomys") +
+  annotate("text", y = c(10, 11, 13), 
+           x = 250, label = "Dipodomys") +
+  theme(legend.position = "none") +
+  theme_bw() +
+  scale_color_brewer()
+
+#Lab 2 challenge annotated boxplot with added theme_bw and scale_color_brewer from my revised submission of challenge 2
+
 ```
 
 -   I can be creative...
 
 ```{r}
 #| label: dvs-3-3
+
+ca_childcare |> #removed extra data manipulation that wasn't needed to show objective
+  ggplot(mapping = aes(x = study_year,
+                       y = price,
+                       color = fct_reorder2(.f = region,
+                                            .x = study_year,
+                                            .y = price))) +
+  geom_point()+
+  facet_wrap(~ Age) +
+  labs(title = "Weekly Median Price for Center-Based Childcare ($)",
+       x = "Study Year",
+       y = "") +
+  geom_smooth() +
+  scale_color_brewer(palette = "Paired", #add palette to be creative
+                     name = "California Region") +
+  scale_x_continuous(breaks = c(2008, 2012, 2016)) + 
+  theme_bw() + #add a professional looking theme
+  theme(legend.text = element_text(size = 8)) 
+
+#revised from lab 4 Q#6
+
 
 ```
 
@@ -299,12 +749,26 @@ I've done this in the following provided assignments:
 ```{r}
 #| label: dvs-4-summarize
 
+teacher_evals_clean |>
+  summarize(
+    across(.cols = course_id:teacher_id,
+           .fns = ~ n_distinct(.x))
+  )
+#from lab 3 Q#6
+
 ```
 
 -   Example using `across()`
 
 ```{r}
 #| label: dvs-4-across
+
+teacher_evals_clean |>
+  summarize(
+    across(.cols = course_id:teacher_id,
+           .fns = ~ n_distinct(.x))
+  )
+#from lab 3 Q#6
 
 ```
 
@@ -315,12 +779,29 @@ I've done this in the following provided assignments:
 ```{r}
 #| label: dvs-5-1
 
+teacher_evals_clean |>
+  summarize(
+    across(.cols = course_id:teacher_id,
+           .fns = ~ n_distinct(.x))
+  )
+#from lab 3 Q#6
+
 ```
 
 -   Example 2
 
 ```{r}
 #| label: dvs-5-2
+
+teacher_evals_clean <- evals |>
+  rename(sex = gender) |>
+  filter(no_participants > 10) |> 
+  mutate(
+    across(.cols = teacher_id:question_no,
+           .fns = ~ as.factor(.x)) 
+        ) |> #not quite a summary of a variable but I used across for multiple columns
+  
+#from lab 3 Q#5
 
 ```
 
@@ -331,12 +812,24 @@ I've done this in the following provided assignments:
 ```{r}
 #| label: dvs-6-1
 
+species_mod <- aov(data = surveys, weight ~ species)
+summary(species_mod)
+
+#from lab 2 Q#17
+
 ```
 
 -   Example 2
 
 ```{r}
 #| label: dvs-6-2
+
+reg_mod1 <- lm(mc_infant ~ mhi_2018, data = ca_childcare)
+summary(reg_mod1)
+
+#from lab 4 Q#8
+
+#I was unclear if these count of if any final output table would count
 
 ```
 
@@ -365,12 +858,30 @@ I've done this in the following provided assignments:
 ```{r}
 #| label: pe-1-one-call
 
+crime_scene_report <- crime_scene_report |>
+  mutate(date = ymd(date)) |>
+  filter(date == "2018-01-15",
+         type == "murder",
+         city == "SQL City") 
+
+#from lab 5 to get preliminary crime info
+
 ```
 
 -   `across()`
 
 ```{r}
 #| label: pe-1-across
+
+teacher_evals_clean <- evals |>
+  rename(sex = gender) |>
+  filter(no_participants > 10) |> 
+  mutate(
+      across(.cols = teacher_id:question_no,
+             .fns = ~ as.factor(.x)) 
+      )
+
+#from lab 3 Q#5
 
 ```
 
@@ -427,12 +938,56 @@ I've done this in the following provided assignments:
 ```{r}
 #| label: pe-4-1
 
+get_fit_now_check_in |>
+  mutate(check_in_date = ymd(check_in_date)) |>
+  full_join(get_fit_now_member, 
+             by = join_by(membership_id == id)) |>
+  inner_join(person,
+             by = join_by(person_id == id,
+                          name == name)) |>
+  inner_join(drivers_license,
+             by = join_by(license_id == id)) |>
+  filter(check_in_date == "2018-01-09",
+         membership_status == "gold",
+         str_detect(membership_id, "^48Z"),
+         str_detect(license_id, "[H42W]")) |>
+  select(membership_id,
+         check_in_date,
+         person_id,
+         license_id,
+         name)
+
+#from lab 5 when finding get fit now suspects
+
 ```
 
 -   I can connect a data wrangling pipeline into a `ggplot()`
 
 ```{r}
 #| label: pe-4-2
+
+ca_childcare |>
+  pivot_longer(cols = mc_infant:mc_preschool,
+               names_to = "Age",
+               values_to = "price") |>
+  mutate(Age = fct_recode(.f = Age,
+                          "Infant" = "mc_infant",
+                          "Toddler" = "mc_toddler",
+                          "Preschool" = "mc_preschool"),
+         Age = fct_relevel(Age, 
+                           "Infant",
+                           "Toddler",
+                           "Preschool"),
+         region = fct_recode(region, 
+                             "Los Angeles County" = "Los Angeles",
+                             "Orange County" = "Orange")) |>
+  ggplot(mapping = aes(x = study_year,
+                       y = price,
+                       color = fct_reorder2(.f = region,
+                                            .x = study_year,
+                                            .y = price)))
+
+#from lab 4 Q#6
 
 ```
 
@@ -461,12 +1016,22 @@ I've done this in the following provided assignments:
 ```{r}
 #| label: dsm-2-1
 
+species_mod <- aov(data = surveys, weight ~ species)
+summary(species_mod)
+
+#from lab 2 Q#17
+
 ```
 
 -   Example 2
 
 ```{r}
 #| label: dsm-2-2
+
+reg_mod1 <- lm(mc_infant ~ mhi_2018, data = ca_childcare)
+summary(reg_mod1)
+
+#from lab 4 Q#8
 
 ```
 
@@ -476,12 +1041,20 @@ I've done this in the following provided assignments:
 
 <!-- For the revisions included in your Portfolio, to help me understand the nature of your revisions, please denote somehow the feedback I provided you (e.g., boldface, italics, colored text) before your revisions. -->
 
+I have revised work on all of my lab assignments to get a better understanding of how to code in a better way. For some of the code above, I needed to add more elements to make the graphs more visually appealing and professional. I also employed more efficient or new methods to make my code more modern or robust. This makes me a better coder, and it ingrains these ideas so that I will build on them as the quarter progresses.
+
 ## Extending My Thinking
 
 <!-- How did you extended your thinking throughout the course? How did you extend your thinking on the code examples you have provided in your portfolio? -->
+
+I extended my thinking by applying what I learned in my challenge problems to code within the portfolio. Several of my data visualization code examples came from the lab 2 challenge problem which I revised to attempt some of the more complicated problems within the challenge. I have also gained a better understanding of what it takes to code tidily and efficiently and have used that in my personal research. I have also explored new methods of completing a task more efficiently.
 
 ## Peer Support & Collaboration
 
 <!-- Include an image or a description of feedback you gave that you are proud of (either in a peer review or in Discord). -->
 
 <!-- Include a description of how you grew as a collaborator through the weekly pair programming activities.   -->
+
+In my lab 5 peer review, I tried to use a sandwich method for providing feedback to not be as harsh so that the person would be more likely to take my feedback and apply it in the future. I began by commenting that the code was pretty tidy by putting functions on new lines and using commas to end lines but there was some areas where named arguments weren't used or they could have added new lines in some other places. I also talked about how the code was efficient and some areas for improvement. They did a good job of using features like %in%, str_detect, or slice_max to more efficiently select relevant parts of the dataset. However, they used many intermediate objects, and had duplicate functions so I tried to encourage them to tidy their workspace by creating fewer objects and to use a comma or pipe to make the code more efficient.
+
+As a collaborator, I grew through the weekly activities by becoming more confident in sharing my ideas with my partner. We get along pretty well, but we still try to follow the roles to get practice collaborating and to ensure that one of us doesn't overpower the conversation. It can be harder to follow the roles if we get stuck at a point, but we have gotten better about being comfortable asking for help and respecting the roles we each have. I think I have been a supportive partner even out of these activities because we communicate to help clarify lab questions.
