@@ -13,7 +13,7 @@ code-tools: true
 code-fold: true
 ---
 
-[**My Grade:**]{.underline} I believe my grade equivalent to course work evidenced below to be an **A-**. I have tried to submit good work, but I have not been able to devote as much time to the content as I would have liked so I don't think I have done as much as I could have.
+[**My Grade:**]{.underline} I believe my grade equivalent to course work evidenced below to be an **A**. I have tried to submit good work, but I have not been able to devote as much time to the content as I would have liked so I don't think I have done as much as I could have.
 
 [**Learning Objective Evidence:**]{.underline} In the code chunks below, provide code from Lab or Challenge assignments where you believe you have demonstrated proficiency with the specified learning target. Be sure to specify **where** the code came from (e.g., Lab 4 Question 2).
 
@@ -551,6 +551,16 @@ ggplot(data = surveys,
 ```{r}
 #| label: dvs-2-num-cat
 
+#create a new dataframe to contain annotation info
+annotations <- data.frame(
+  label = c("Chaetodipus", "Chaetodipus", "Peromyscus", 
+            "Peromyscus", "Perognathus", "Reithrodontomys", "Reithrodontomys", 
+            "Sigmodon", "Onychomys", "Onychomys", "Dipodomys", "Dipodomys", 
+            "Dipodomys"),
+  y = c(2, 12, 3, 8, 4, 5, 9, 6, 7, 14, 10, 11, 13),
+  x = 250
+)
+
 ggplot(data = surveys,
        mapping = aes(
          x = weight,
@@ -558,31 +568,19 @@ ggplot(data = surveys,
          color = genus)) +
   geom_boxplot(outliers = FALSE) + 
   geom_jitter(alpha = 0.2) +
-  labs(subtitle = "Rodent Species",
+  labs(subtitle = "Rodent Species Weight (g) with color by Genus",
        x = "Weight (g)",
        y = "") +
   annotate("text", y = 1, 
            x = 25, label = "Neotoma") +
-  annotate("text", y = c(2, 12), 
-           x = 250, label = "Chaetodipus") +
-  annotate("text", y = c(3, 8), 
-           x = 250, label = "Peromyscus") +
-  annotate("text", y = 4, 
-           x = 250, label = "Perognathus") +
-  annotate("text", y = c(5, 9),
-           x = 250, label = "Reithrodontomys") +
-  annotate("text", y = 6, 
-           x = 250, label = "Sigmodon") +
-  annotate("text", y = c(7, 14), 
-           x = 250, label = "Onychomys") +
-  annotate("text", y = c(10, 11, 13), 
-           x = 250, label = "Dipodomys") +
-  theme(legend.position = "none") +
-  theme_bw() +
-  scale_color_brewer()
+  geom_text(data = annotations, 
+        mapping = aes(x = x, y = y, label = label), 
+        inherit.aes = FALSE) +
+    theme_bw() +
+  scale_color_brewer(palette = "PuBuGn") +
+  theme(legend.position = "none")
 
-#Lab 2 challenge annotated boxplot with added theme_bw and 
-#scale_color_brewer from my revised submission of challenge 2
+#Revision of lab 2 Hot challenge of annotated boxplots with added theme_bw, scale_color_brewer, and a new dataframe to more efficiently enter a series of annotations
 
 ```
 
