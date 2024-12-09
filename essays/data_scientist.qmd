@@ -9,3 +9,5 @@ editor: visual
 -   Focus specifically on data science concepts and the skills we employed in learning them, not a laundry list of topics that you learned (those are in the syllabus, so I know them already).
 
 -   Focus on a small number of specific areas of growth for you that happened in STAT 331. Identify at least one artifact in your portfolio that illustrates each area of growth and explain how this artifact shows growth in the way you are describing.
+
+**As a student of data science, I gained a variety of skills that will prepare me to create my own professional, statistical analyses and documents. This class taught me how to better manipulate data to better serve my needs in efficient ways. I also have become much more skilled at creating high quality tables and plots that can be used in a variety of settings to convey my skills as a data scientist. I believe that my creativity plot in DVS-3 is an excellent example of the quality of plots that I am now comfortable creating following this course. I have also greatly improved my problem solving abilities when it comes to activities where I do not know the solution going in.**
