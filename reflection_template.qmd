@@ -13,7 +13,7 @@ code-tools: true
 code-fold: true
 ---
 
-[**My Grade:**]{.underline} I believe my grade equivalent to course work evidenced below to be an **A-**. I have tried to submit good work, but I have not been able to devote as much time to the content as I would have liked so I don't think I have done as much as I could have.
+[**My Grade:**]{.underline} I believe my grade equivalent to course work evidenced below to be an **A**. I have tried to submit good work, but I have not been able to devote as much time to the content as I would have liked so I don't think I have done as much as I could have.
 
 [**Learning Objective Evidence:**]{.underline} In the code chunks below, provide code from Lab or Challenge assignments where you believe you have demonstrated proficiency with the specified learning target. Be sure to specify **where** the code came from (e.g., Lab 4 Question 2).
 
